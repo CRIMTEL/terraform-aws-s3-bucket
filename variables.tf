@@ -91,10 +91,7 @@ variable "request_payer" {
 variable "website" {
   description = "Map containing static web-site hosting or redirect configuration."
   type        = any # map(string)
-  default     = {
-    "index.html" = website/index.html
-    "error.html" = website/error.html
-  } 
+  default     = {}
 }
 
 variable "cors_rule" {
