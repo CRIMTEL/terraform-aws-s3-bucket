@@ -24,9 +24,9 @@ resource "aws_s3_bucket" "this" {
 }
 
 resource "aws_s3_object" "index_document" {
-  bucket = s3_bucket_id
+  bucket = aws_s3_bucket.this[0].id
   key    = "index.html"
-  source = "/website/index.html"
+  source = "website/index.html"
 }
 
 resource "aws_s3_bucket_logging" "this" {
