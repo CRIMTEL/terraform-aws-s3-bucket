@@ -23,11 +23,11 @@ resource "aws_s3_bucket" "this" {
   tags                = var.tags
 }
 
-resource "aws_s3_object" "index_document" {
-  bucket = aws_s3_bucket.this[0].id
-  key    = "index.html"
-  source = "website/index.html"
-}
+#resource "aws_s3_object" "index_document" {
+#  bucket = aws_s3_bucket.this[0].id
+#  key    = "index.html"
+#  source = "website/index.html"
+#}
 
 resource "aws_s3_bucket_logging" "this" {
   count = local.create_bucket && length(keys(var.logging)) > 0 ? 1 : 0
