@@ -165,25 +165,6 @@ module "s3_bucket" {
 
     index_document = "index.html"
     error_document = "error.html"
-    routing_rules = [{
-      condition = {
-        key_prefix_equals = "docs/"
-      },
-      redirect = {
-        replace_key_prefix_with = "documents/"
-      }
-      }, {
-      condition = {
-        http_error_code_returned_equals = 404
-        key_prefix_equals               = "archive/"
-      },
-      redirect = {
-        host_name          = "archive.myhost.com"
-        http_redirect_code = 301
-        protocol           = "https"
-        replace_key_with   = "not_found.html"
-      }
-    }]
   }
 
   server_side_encryption_configuration = {
