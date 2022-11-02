@@ -38,8 +38,8 @@ resource "aws_s3_object" "this" {
   }
 }
 
-resource "aws_s3_object" "index_document" {
-  bucket = aws_s3_bucket.this[0].id
-  key    = "index_document"
-  source = "website/index.html"
-}
+#resource "aws_s3_object" "index_document" {
+#  bucket = aws_s3_bucket.this[0].id
+#  key    = "index_document"
+#  source = "website/index.html"
+#}

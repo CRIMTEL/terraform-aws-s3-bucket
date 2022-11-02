@@ -2,7 +2,16 @@ data "aws_canonical_user_id" "this" {}
 
 locals {
   create_bucket = var.create_bucket
-
+  website = {
+    "index_document" {
+      key     = "index_document"
+      source  = "/modules/object/website/index.html"
+    }
+    "error_document" {
+      key     = "error_document"
+      source  = "/modules/object/website/error.html"
+    }
+  }
   attach_policy = var.attach_require_latest_tls_policy || var.attach_elb_log_delivery_policy || var.attach_lb_log_delivery_policy || var.attach_deny_insecure_transport_policy || var.attach_policy
 
   # Variables with type `any` should be jsonencode()'d when value is coming from Terragrunt
