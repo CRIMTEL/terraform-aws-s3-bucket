@@ -1,18 +1,8 @@
-#this is a test
 data "aws_canonical_user_id" "this" {}
 
 locals {
   create_bucket = var.create_bucket
-  website = {
-    "index_document" {
-      key     = "index_document"
-      source  = "/modules/object/website/index.html"
-    }
-    "error_document" {
-      key     = "error_document"
-      source  = "/modules/object/website/error.html"
-    }
-  }
+  
   attach_policy = var.attach_require_latest_tls_policy || var.attach_elb_log_delivery_policy || var.attach_lb_log_delivery_policy || var.attach_deny_insecure_transport_policy || var.attach_policy
 
   # Variables with type `any` should be jsonencode()'d when value is coming from Terragrunt
@@ -33,11 +23,19 @@ resource "aws_s3_bucket" "this" {
   tags                = var.tags
 }
 
-#resource "aws_s3_object" "index_document" {
-#  bucket = aws_s3_bucket.this[0].id
-#  key    = "index.html"
-#  source = "website/index.html"
-#}
+#Add index.html to the bucket upon creation
+resource "aws_s3_object" "index_document" {
+  bucket = aws_s3_bucket.this[0].id
+  key    = "index.html"
+  source = "website/index.html"
+}
+
+#Add error.html to the bucket upon creation
+resource "aws_s3_object" "error_testdoc" {
+  bucket = aws_s3_bucket.this[0].id
+  key    = "error.html"
+  source = "website/error.html"
+}
 
 resource "aws_s3_bucket_logging" "this" {
   count = local.create_bucket && length(keys(var.logging)) > 0 ? 1 : 0

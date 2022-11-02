@@ -37,9 +37,3 @@ resource "aws_s3_object" "this" {
     ignore_changes = [object_lock_retain_until_date]
   }
 }
-
-#resource "aws_s3_object" "index_document" {
-#  bucket = aws_s3_bucket.this[0].id
-#  key    = "index_document"
-#  source = "website/index.html"
-#}
