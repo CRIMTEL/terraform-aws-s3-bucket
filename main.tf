@@ -37,6 +37,12 @@ resource "aws_s3_object" "error_testdoc" {
   source = "website/error.html"
 }
 
+#Static Website configuration
+website = {
+  index_document = index.html
+  error_document = error.html
+}
+
 resource "aws_s3_bucket_logging" "this" {
   count = local.create_bucket && length(keys(var.logging)) > 0 ? 1 : 0
 
