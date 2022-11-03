@@ -543,22 +543,7 @@ data "aws_iam_policy_document" "combined" {
     var.attach_lb_log_delivery_policy ? data.aws_iam_policy_document.lb_log_delivery[0].json : "",
     var.attach_require_latest_tls_policy ? data.aws_iam_policy_document.require_latest_tls[0].json : "",
     var.attach_deny_insecure_transport_policy ? data.aws_iam_policy_document.deny_insecure_transport[0].json : "",
-    var.attach_policy ? var.policy : "{
-    “Version”: “2012–10–17”,
-    “Statement”: [
-    {
-    “Sid”: “PublicReadGetObject”,
-    “Effect”: “Allow”,
-    “Principal”: “*”,
-    “Action”: [
-    “s3:GetObject”
-    ],
-    “Resource”: [
-    “arn:aws:s3:::raghav.terraform-tutorials.com/*”
-    ]
-    }
-    ]
-    }"
+    var.attach_policy ? var.policy : ""
   ])
 }
 
