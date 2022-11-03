@@ -535,6 +535,22 @@ resource "aws_s3_bucket_policy" "this" {
   policy = data.aws_iam_policy_document.combined[0].json
 }
 
+data "aws_iam_policy_document" "policy" {
+  statement {
+    principals {
+      type        = "AWS"
+      identifiers = [aws_iam_role.this.arn]
+    }
+
+    actions = [
+      "s3:ListBucket",
+    ]
+
+    resources = [
+      "arn:aws:s3:::${local.bucket_name}",
+    ]
+  }
+}
 data "aws_iam_policy_document" "combined" {
   count = local.create_bucket && local.attach_policy ? 1 : 0
 
