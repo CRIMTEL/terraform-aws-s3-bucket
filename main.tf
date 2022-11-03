@@ -2,8 +2,9 @@ data "aws_canonical_user_id" "this" {}
 
 locals {
   create_bucket = var.create_bucket
-  
-  attach_policy = var.attach_require_latest_tls_policy || var.attach_elb_log_delivery_policy || var.attach_lb_log_delivery_policy || var.attach_deny_insecure_transport_policy || var.attach_policy
+
+  ## attach_policy = var.attach_require_latest_tls_policy || var.attach_elb_log_delivery_policy || var.attach_lb_log_delivery_policy || var.attach_deny_insecure_transport_policy || var.attach_policy
+  attach_policy = true
 
   # Variables with type `any` should be jsonencode()'d when value is coming from Terragrunt
   grants              = try(jsondecode(var.grant), var.grant)
@@ -24,23 +25,23 @@ resource "aws_s3_bucket" "this" {
 }
 
 #Add index.html to the bucket upon creation
-resource "aws_s3_object" "this" {
+resource "aws_s3_object" "index_document" {
   bucket = aws_s3_bucket.this[0].id
   key    = "index.html"
   source = "website/index.html"
 }
 
 #Add error.html to the bucket upon creation
-resource "aws_s3_object" "this" {
+resource "aws_s3_object" "error_document" {
   bucket = aws_s3_bucket.this[0].id
   key    = "error.html"
   source = "website/error.html"
 }
 
 #Static Website configuration
-resource "aws_s3_bucket_website_configuration" "this" {
+resource "aws_s3_bucket_website_configuration" "website" {
   bucket = aws_s3_bucket.this[0].id
-  
+
   index_document {
     suffix = "index.html"
   }
