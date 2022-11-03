@@ -535,6 +535,24 @@ resource "aws_s3_bucket_policy" "this" {
   policy = data.aws_iam_policy_document.combined[0].json
 }
 
+resource "aws_iam_role" "this" {
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": "sts:AssumeRole",
+      "Principal": {
+        "Service": "ec2.amazonaws.com"
+      },
+      "Effect": "Allow",
+      "Sid": ""
+    }
+  ]
+}
+EOF
+}
+
 data "aws_iam_policy_document" "policy" {
   statement {
     principals {
