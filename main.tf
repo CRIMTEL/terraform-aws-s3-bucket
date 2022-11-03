@@ -553,6 +553,7 @@ resource "aws_iam_role" "this" {
 EOF
 }
 
+#bucket policy
 data "aws_iam_policy_document" "policy" {
   statement {
     principals {
@@ -565,7 +566,7 @@ data "aws_iam_policy_document" "policy" {
     ]
 
     resources = [
-      "arn:aws:s3:::${local.bucket_name}",
+      "arn:aws:s3:::${aws_s3_bucket.this[0].arn}",
     ]
   }
 }
