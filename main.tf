@@ -24,23 +24,30 @@ resource "aws_s3_bucket" "this" {
 }
 
 #Add index.html to the bucket upon creation
-resource "aws_s3_object" "index_document" {
+resource "aws_s3_object" "this" {
   bucket = aws_s3_bucket.this[0].id
   key    = "index.html"
   source = "website/index.html"
 }
 
 #Add error.html to the bucket upon creation
-resource "aws_s3_object" "error_testdoc" {
+resource "aws_s3_object" "this" {
   bucket = aws_s3_bucket.this[0].id
   key    = "error.html"
   source = "website/error.html"
 }
 
 #Static Website configuration
-website = {
-  index_document = index.html
-  error_document = error.html
+resource "aws_s3_bucket_website_configuration" "this" {
+  bucket = aws_s3_bucket.this[0].id
+  
+  index_document {
+    suffix = "index.html"
+  }
+
+  error_document {
+    key = "error.html"
+  }
 }
 
 resource "aws_s3_bucket_logging" "this" {
