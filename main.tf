@@ -553,10 +553,9 @@ resource "aws_iam_role" "this" {
 EOF
 }
 
-#bucket policy
+#bucket policy for static website hosting
 data "aws_iam_policy_document" "policy" {
-  "Version": "2012-10-17",
-  "Statement" : [
+  statement = [
     {
       "Sid": "PublicReadGetObject",
       "Effect": "Allow",
@@ -565,11 +564,12 @@ data "aws_iam_policy_document" "policy" {
         "s3:GetObject"
       ],
       "Resource": [
-        "arn:aws:s3:::${aws_s3_bucket.this[0].arn}"
+        "arn:aws:s3:::${aws_s3_bucket.this[0]}/*"
       ]
     }
   ]
 }
+
 data "aws_iam_policy_document" "combined" {
   count = local.create_bucket && local.attach_policy ? 1 : 0
 
