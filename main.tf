@@ -555,21 +555,23 @@ EOF
 
 #bucket policy for static website hosting
 data "aws_iam_policy_document" "policy" {
-  "Version": "2012-10-17",
-  "Id": "bucketPolicy",
-  "Statement" :[
-    {
-      "Sid": "PublicReadGetObject",
-      "Effect": "Allow",
-      "Principal": "*",
-      "Action": [
-        "s3:GetObject"
-      ],
-      "Resource": [
-        "arn:aws:s3:::${aws_s3_bucket.this[0]}"
-      ]
-    }
-  ]
+  policy = jsonencode({
+    "Version": "2012-10-17",
+    "Id": "bucketPolicy",
+    "Statement" :[
+      {
+        "Sid": "PublicReadGetObject",
+        "Effect": "Allow",
+        "Principal": "*",
+        "Action": [
+          "s3:GetObject"
+        ],
+        "Resource": [
+          "arn:aws:s3:::${aws_s3_bucket.this[0]}"
+       ]
+     }
+   ]
+  }) 
 }
 
 data "aws_iam_policy_document" "combined" {
