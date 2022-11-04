@@ -555,8 +555,11 @@ EOF
 
 #bucket policy for static website hosting
 data "aws_iam_policy_document" "policy" {
-  statement = [
-    {
+  statement {
+      principals {
+        type        = "AWS"
+        identifiers = [aws_iam_role.this.arn]
+    }
       "Sid": "PublicReadGetObject",
       "Effect": "Allow",
       "Principal": "*",
@@ -564,10 +567,9 @@ data "aws_iam_policy_document" "policy" {
         "s3:GetObject"
       ],
       "Resource": [
-        "arn:aws:s3:::${aws_s3_bucket.this[0]}/*"
+        "arn:aws:s3:::${aws_s3_bucket.this[0]}"
       ]
-    }
-  ]
+  }
 }
 
 data "aws_iam_policy_document" "combined" {
