@@ -528,11 +528,26 @@ resource "aws_s3_bucket_replication_configuration" "this" {
   depends_on = [aws_s3_bucket_versioning.this]
 }
 
-resource "aws_s3_bucket_policy" "public_read" {
+resource "aws_s3_bucket_policy" "this" {
   count = local.create_bucket && local.attach_policy ? 1 : 0
 
   bucket = aws_s3_bucket.this[0].id
-  policy = data.aws_iam_policy_document.combined[0].json
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+	  "Principal": "*",
+      "Action": [ "s3:*" ],
+      "Resource": [
+        "${aws_s3_bucket.this[0].arn}",
+        "${aws_s3_bucket.this[0].arn}/*"
+      ]
+    }
+  ]
+}
+EOF
 }
 
 resource "aws_iam_role" "this" {
@@ -553,25 +568,6 @@ resource "aws_iam_role" "this" {
 EOF
 }
 
-#bucket policy for static website hosting
-resource "aws_iam_policy" "policy" {
-  policy = jsonencode({
-    "Version": "2012-10-17",
-    "Id": "bucketPolicy",
-    "Statement" :[
-      {
-        "Sid": "PublicReadGetObject",
-        "Effect": "Allow",
-        "Action": [
-          "s3:GetObject"
-        ],
-        "Resource": [
-          "arn:aws:s3:::${aws_s3_bucket.this[0].id}"
-       ]
-     }
-   ]
-  }) 
-}
 
 data "aws_iam_policy_document" "combined" {
   count = local.create_bucket && local.attach_policy ? 1 : 0
@@ -581,7 +577,7 @@ data "aws_iam_policy_document" "combined" {
     var.attach_lb_log_delivery_policy ? data.aws_iam_policy_document.lb_log_delivery[0].json : "",
     var.attach_require_latest_tls_policy ? data.aws_iam_policy_document.require_latest_tls[0].json : "",
     var.attach_deny_insecure_transport_policy ? data.aws_iam_policy_document.deny_insecure_transport[0].json : "",
-    var.attach_policy ? var.policy : "data.aws_iam_policy_document.public_read_access.json"
+    var.attach_policy ? var.policy : data.aws_iam_bucket_policy.this[0].json
   ])
 }
 
