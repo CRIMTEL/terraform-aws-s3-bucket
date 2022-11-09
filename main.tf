@@ -4,7 +4,14 @@ locals {
   create_bucket = var.create_bucket
 
   attach_policy = var.attach_require_latest_tls_policy || var.attach_elb_log_delivery_policy || var.attach_lb_log_delivery_policy || var.attach_deny_insecure_transport_policy || var.attach_policy
-  ##attach_policy = true
+
+  #grant = {
+  #  grantee {
+  #    id    =
+  #    type  =
+  #  }
+  #  permission = "READ"
+  #}
 
   # Variables with type `any` should be jsonencode()'d when value is coming from Terragrunt
   grants              = try(jsondecode(var.grant), var.grant)
@@ -13,6 +20,23 @@ locals {
   intelligent_tiering = try(jsondecode(var.intelligent_tiering), var.intelligent_tiering)
 }
 
+#bucket policies:
+attach_policy = true
+policy = data.aws_iam_policy_document.bucket_policy
+
+data "aws_iam_policy_document" "bucket_policy" {
+  statement {
+    principals = "*"
+
+    actions = [
+      "s3:GetObject",
+    ]
+
+    resources = [
+      "${aws_s3_bucket.this[0].arn}/*",
+    ]
+  }
+}
 resource "aws_s3_bucket" "this" {
   count = local.create_bucket ? 1 : 0
 
@@ -548,16 +572,7 @@ data "aws_iam_policy_document" "combined" {
     var.attach_lb_log_delivery_policy ? data.aws_iam_policy_document.lb_log_delivery[0].json : "",
     var.attach_require_latest_tls_policy ? data.aws_iam_policy_document.require_latest_tls[0].json : "",
     var.attach_deny_insecure_transport_policy ? data.aws_iam_policy_document.deny_insecure_transport[0].json : "",
-    var.attach_policy ? var.policy : <<POLICY
-{
-  "Version": "2012-10-17",
-  "Statement": {
-    "Effect": "Allow",
-    "Action": ["s3:*"],
-    "Resource": "${aws_s3_bucket.this[0].arn}"
-  }
-}
-POLICY
+    var.attach_policy ? var.policy : ""
   ])
 }
 
