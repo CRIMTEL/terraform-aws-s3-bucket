@@ -1,6 +1,6 @@
 # Local .terraform directories
 **/.terraform/*
-
+backup_main
 # Terraform lockfile
 .terraform.lock.hcl
 
@@ -29,3 +29,4 @@ override.tf.json
 terraform.rc
 
 *.zip
+backup_main.tf
