@@ -26,16 +26,18 @@ resource "aws_s3_bucket" "this" {
 
 #Add index.html to the bucket upon creation
 resource "aws_s3_object" "index_document" {
-  bucket = aws_s3_bucket.this[0].id
-  key    = "index.html"
-  source = "website/index.html"
+  bucket       = aws_s3_bucket.this[0].id
+  key          = "index.html"
+  source       = "website/index.html"
+  content_type = "text/html"
 }
 
 #Add error.html to the bucket upon creation
 resource "aws_s3_object" "error_document" {
-  bucket = aws_s3_bucket.this[0].id
-  key    = "error.html"
-  source = "website/error.html"
+  bucket       = aws_s3_bucket.this[0].id
+  key          = "error.html"
+  source       = "website/error.html"
+  content_type = "text/html"
 }
 
 #Static Website configuration
@@ -544,7 +546,7 @@ data "aws_iam_policy_document" "combined" {
     var.attach_lb_log_delivery_policy ? data.aws_iam_policy_document.lb_log_delivery[0].json : "",
     var.attach_require_latest_tls_policy ? data.aws_iam_policy_document.require_latest_tls[0].json : "",
     var.attach_deny_insecure_transport_policy ? data.aws_iam_policy_document.deny_insecure_transport[0].json : "",
-    var.attach_policy ? var.policy : "<<POLICY
+    var.attach_policy ? var.policy : <<POLICY
 {
   "Version": "2012-10-17",
   "Statement": {
@@ -553,7 +555,7 @@ data "aws_iam_policy_document" "combined" {
     "Resource": "${aws_s3_bucket.this[0].arn}"
   }
 }
-POLICY"
+POLICY
   ])
 }
 
