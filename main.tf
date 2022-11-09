@@ -3,8 +3,8 @@ data "aws_canonical_user_id" "this" {}
 locals {
   create_bucket = var.create_bucket
 
-  ## attach_policy = var.attach_require_latest_tls_policy || var.attach_elb_log_delivery_policy || var.attach_lb_log_delivery_policy || var.attach_deny_insecure_transport_policy || var.attach_policy
-  attach_policy = true
+  attach_policy = var.attach_require_latest_tls_policy || var.attach_elb_log_delivery_policy || var.attach_lb_log_delivery_policy || var.attach_deny_insecure_transport_policy || var.attach_policy
+  ##attach_policy = true
 
   # Variables with type `any` should be jsonencode()'d when value is coming from Terragrunt
   grants              = try(jsondecode(var.grant), var.grant)
@@ -532,40 +532,7 @@ resource "aws_s3_bucket_policy" "this" {
   count = local.create_bucket && local.attach_policy ? 1 : 0
 
   bucket = aws_s3_bucket.this[0].id
-  policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-	  "Principal": "*",
-      "Action": [ "s3:*" ],
-      "Resource": [
-        "${aws_s3_bucket.this[0].arn}",
-        "${aws_s3_bucket.this[0].arn}/*"
-      ]
-    }
-  ]
-}
-EOF
-}
-
-resource "aws_iam_role" "this" {
-  assume_role_policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Action": "sts:AssumeRole",
-      "Principal": {
-        "Service": "ec2.amazonaws.com"
-      },
-      "Effect": "Allow",
-      "Sid": ""
-    }
-  ]
-}
-EOF
+  policy = data.aws_iam_policy_document.combined[0].json
 }
 
 
@@ -577,7 +544,16 @@ data "aws_iam_policy_document" "combined" {
     var.attach_lb_log_delivery_policy ? data.aws_iam_policy_document.lb_log_delivery[0].json : "",
     var.attach_require_latest_tls_policy ? data.aws_iam_policy_document.require_latest_tls[0].json : "",
     var.attach_deny_insecure_transport_policy ? data.aws_iam_policy_document.deny_insecure_transport[0].json : "",
-    var.attach_policy ? var.policy : data.aws_iam_bucket_policy.this[0].json
+    var.attach_policy ? var.policy : "<<POLICY
+{
+  "Version": "2012-10-17",
+  "Statement": {
+    "Effect": "Allow",
+    "Action": ["s3:*"],
+    "Resource": "${aws_s3_bucket.this[0].arn}"
+  }
+}
+POLICY"
   ])
 }
 
