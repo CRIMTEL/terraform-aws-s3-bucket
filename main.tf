@@ -13,19 +13,6 @@ locals {
 }
 
 
-data "aws_iam_policy_document" "bucket_policy" {
-  statement {
-    principals = "*"
-
-    actions = [
-      "s3:GetObject",
-    ]
-
-    resources = [
-      "${aws_s3_bucket.this[0].arn}/*",
-    ]
-  }
-}
 resource "aws_s3_bucket" "this" {
   count = local.create_bucket ? 1 : 0
 
@@ -39,6 +26,20 @@ resource "aws_s3_bucket" "this" {
   #bucket policies:
   attach_policy = true
   policy = data.aws_iam_policy_document.bucket_policy
+}
+
+data "aws_iam_policy_document" "bucket_policy" {
+  statement {
+    principals = "*"
+
+    actions = [
+      "s3:GetObject",
+    ]
+
+    resources = [
+      "${aws_s3_bucket.this[0].arn}/*",
+    ]
+  }
 }
 
 #Add index.html to the bucket upon creation
