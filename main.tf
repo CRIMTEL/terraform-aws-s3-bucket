@@ -44,8 +44,8 @@ resource "aws_s3_bucket" "this" {
   tags                = var.tags
 
   #bucket policies:
-  attach_policy = true
-  policy = data.aws_iam_policy_document.bucket_policy
+  #attach_policy = true
+  #policy = data.aws_iam_policy_document.bucket_policy
 }
 
 #Add index.html to the bucket upon creation
@@ -558,9 +558,8 @@ resource "aws_s3_bucket_replication_configuration" "this" {
 
 resource "aws_s3_bucket_policy" "this" {
   count = local.create_bucket && local.attach_policy ? 1 : 0
-
   bucket = aws_s3_bucket.this[0].id
-  policy = data.aws_iam_policy_document.combined[0].json
+  policy = data.aws_iam_policy_document.bucket_policy
 }
 
 
