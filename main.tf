@@ -3,11 +3,9 @@ data "aws_canonical_user_id" "this" {}
 locals {
   create_bucket = var.create_bucket
   
-  #bucket policies:
-  attach_policy = true
-  policy = data.aws_iam_policy_document.bucket_policy
+  attach_policy = var.attach_require_latest_tls_policy || var.attach_elb_log_delivery_policy || var.attach_lb_log_delivery_policy || var.attach_deny_insecure_transport_policy || var.attach_policy
 
-  #bucket_name = "s3-bucket-${random_pet.this.id}"
+  bucket_name = "s3-bucket-${random_pet.this.id}"
 
   # Variables with type `any` should be jsonencode()'d when value is coming from Terragrunt
   grants              = try(jsondecode(var.grant), var.grant)
@@ -17,21 +15,8 @@ locals {
 }
 
 #resource generating name to avoid circular dependencies
-#resource "random_pet" "this" {
- # length = 2
-#}
-
-resource "aws_s3_bucket" "this" {
-  count = local.create_bucket ? 1 : 0
-
-  bucket        = var.bucket
-  bucket_prefix = var.bucket_prefix
-
-  force_destroy       = var.force_destroy
-  object_lock_enabled = var.object_lock_enabled
-  tags                = var.tags
-
-  
+resource "random_pet" "this" {
+  length = 2
 }
 
 data "aws_iam_policy_document" "bucket_policy" {
@@ -43,12 +28,25 @@ data "aws_iam_policy_document" "bucket_policy" {
     ]
 
     resources = [
-      "${aws_s3_bucket.this[0].id}",
+      "arn:aws:s3:::${local.bucket_name}",
     ]
   }
 }
 
+resource "aws_s3_bucket" "this" {
+  count = local.create_bucket ? 1 : 0
 
+  bucket        = local.bucket_name
+  bucket_prefix = var.bucket_prefix
+
+  force_destroy       = var.force_destroy
+  object_lock_enabled = var.object_lock_enabled
+  tags                = var.tags
+
+  #bucket policies:
+  attach_policy = true
+  policy = data.aws_iam_policy_document.bucket_policy
+}
 
 #Add index.html to the bucket upon creation
 resource "aws_s3_object" "index_document" {
@@ -57,9 +55,6 @@ resource "aws_s3_object" "index_document" {
   source       = "website/index.html"
   content_type = "text/html"
   acl          = "public-read"
-  tags         = {
-    "category" = "website"
-  }
 }
 
 #Add error.html to the bucket upon creation
@@ -69,9 +64,6 @@ resource "aws_s3_object" "error_document" {
   source       = "website/error.html"
   content_type = "text/html"
   acl          = "public-read"
-  tags         = {
-    "category" = "website"
-  }
 }
 
 #Static Website configuration
@@ -562,6 +554,13 @@ resource "aws_s3_bucket_replication_configuration" "this" {
 
   # Must have bucket versioning enabled first
   depends_on = [aws_s3_bucket_versioning.this]
+}
+
+resource "aws_s3_bucket_policy" "this" {
+  count = local.create_bucket && local.attach_policy ? 1 : 0
+
+  bucket = aws_s3_bucket.this[0].id
+  policy = data.aws_iam_policy_document.combined[0].json
 }
 
 
