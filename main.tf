@@ -2,8 +2,10 @@ data "aws_canonical_user_id" "this" {}
 
 locals {
   create_bucket = var.create_bucket
-
+  
   attach_policy = var.attach_require_latest_tls_policy || var.attach_elb_log_delivery_policy || var.attach_lb_log_delivery_policy || var.attach_deny_insecure_transport_policy || var.attach_policy
+
+  bucket_name = "s3-bucket-${random_pet.this.id}"
 
   # Variables with type `any` should be jsonencode()'d when value is coming from Terragrunt
   grants              = try(jsondecode(var.grant), var.grant)
@@ -12,6 +14,10 @@ locals {
   intelligent_tiering = try(jsondecode(var.intelligent_tiering), var.intelligent_tiering)
 }
 
+#resource generating name to avoid circular dependencies
+resource "random_pet" "this" {
+  length = 2
+}
 
 data "aws_iam_policy_document" "bucket_policy" {
   statement {
@@ -22,7 +28,7 @@ data "aws_iam_policy_document" "bucket_policy" {
     ]
 
     resources = [
-      "${aws_s3_bucket.this[0].arn}/*",
+      "arn:aws:s3:::${local.bucket_name}",
     ]
   }
 }
@@ -30,7 +36,7 @@ data "aws_iam_policy_document" "bucket_policy" {
 resource "aws_s3_bucket" "this" {
   count = local.create_bucket ? 1 : 0
 
-  bucket        = var.bucket
+  bucket        = local.bucket_name
   bucket_prefix = var.bucket_prefix
 
   force_destroy       = var.force_destroy
