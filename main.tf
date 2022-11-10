@@ -55,6 +55,9 @@ resource "aws_s3_object" "index_document" {
   source       = "website/index.html"
   content_type = "text/html"
   acl          = "public-read"
+  tags         = {
+    "category" = "website"
+  }
 }
 
 #Add error.html to the bucket upon creation
@@ -64,6 +67,9 @@ resource "aws_s3_object" "error_document" {
   source       = "website/error.html"
   content_type = "text/html"
   acl          = "public-read"
+  tags         = {
+    "category" = "website"
+  }
 }
 
 #Static Website configuration
