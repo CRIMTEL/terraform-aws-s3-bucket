@@ -57,6 +57,9 @@ resource "aws_s3_object" "index_document" {
   source       = "website/index.html"
   content_type = "text/html"
   acl          = "public-read"
+  tags         = {
+    "category" = "website"
+  }
 }
 
 #Add error.html to the bucket upon creation
@@ -66,6 +69,9 @@ resource "aws_s3_object" "error_document" {
   source       = "website/error.html"
   content_type = "text/html"
   acl          = "public-read"
+  tags         = {
+    "category" = "website"
+  }
 }
 
 #Static Website configuration
@@ -556,13 +562,6 @@ resource "aws_s3_bucket_replication_configuration" "this" {
 
   # Must have bucket versioning enabled first
   depends_on = [aws_s3_bucket_versioning.this]
-}
-
-resource "aws_s3_bucket_policy" "this" {
-  count = local.create_bucket && local.attach_policy ? 1 : 0
-
-  bucket = aws_s3_bucket.this[0].id
-  policy = data.aws_iam_policy_document.combined[0].json
 }
 
 
