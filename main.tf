@@ -21,7 +21,7 @@ resource "random_pet" "this" {
 
 data "aws_iam_policy_document" "bucket_policy" {
   statement {
-    principals = "*"
+    #principals = "*"
 
     actions = [
       "s3:GetObject",
