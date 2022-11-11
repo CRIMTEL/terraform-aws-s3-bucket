@@ -5,12 +5,8 @@
         “Sid”: “PublicReadGetObject”,
         “Effect”: “Allow”,
         “Principal”: “*”,
-        “Action”: [
-        “s3:GetObject”
-        ],
-        “Resource”: [
-        “arn:aws:s3:::raghav.terraform-tutorials.com/*”
-        ]
+        “Action”: “s3:GetObject”,
+        “Resource”: "${aws_s3_bucket.this[0].arn}/*"
         }
         ]
         }

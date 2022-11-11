@@ -19,19 +19,19 @@ resource "random_pet" "this" {
   length = 2
 }
 
-data "aws_iam_policy_document" "bucket_policy" {
-  statement {
-    #principals = "*"
-
-    actions = [
-      "s3:GetObject",
-    ]
-
-    resources = [
-      "arn:aws:s3:::${local.bucket_name}",
-    ]
-  }
-}
+#data "aws_iam_policy_document" "bucket_policy" {
+ # statement {
+  #  #principals = "*"
+#
+ #   actions = [
+  #    "s3:GetObject",
+   # ]
+#
+ #   resources = [
+  #    "arn:aws:s3:::${local.bucket_name}",
+   # ]
+  #}
+#}
 
 resource "aws_s3_bucket" "this" {
   count = local.create_bucket ? 1 : 0
@@ -565,7 +565,7 @@ resource "aws_s3_bucket_replication_configuration" "this" {
 resource "aws_s3_bucket_policy" "this" {
   count = local.create_bucket && local.attach_policy ? 1 : 0
   bucket = aws_s3_bucket.this[0].id
-  policy = data.aws_iam_policy_document.bucket_policy
+  policy = templatefile("bucketPolicy.json", { bucket = var.bucket_name })     #data.aws_iam_policy_document.bucket_policy
 }
 
 
