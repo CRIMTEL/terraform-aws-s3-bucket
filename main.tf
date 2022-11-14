@@ -7,7 +7,7 @@ locals {
 
   attach_policy = true
   policy = "${aws_s3_bucket_policy.this}"
-
+}
 
 #resource generating name to avoid circular dependencies
 resource "random_pet" "this" {
